@@ -1,0 +1,55 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Project {
+  id          Int               @id @default(autoincrement())
+  name        String
+  description String?
+  imageData   String?           // base64 PNG/JPEG
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  tasks       Task[]
+  milestones  Milestone[]
+  tables      CustomTable[]
+}
+
+model Task {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  startDate   DateTime @default(now())
+  endDate     DateTime @default(now())
+  completed   Boolean   @default(false)
+  projectId   Int
+  project     Project   @relation(fields: [projectId], references: [id])
+}
+
+model Milestone {
+  id          Int       @id @default(autoincrement())
+  name        String
+  date        DateTime @default(now())
+  projectId   Int
+  project     Project   @relation(fields: [projectId], references: [id])
+}
+
+model CustomTable {
+  id        Int               @id @default(autoincrement())
+  name      String
+  projectId Int
+  project   Project           @relation(fields: [projectId], references: [id])
+  rows      CustomTableRow[]
+}
+
+model CustomTableRow {
+  id        Int         @id @default(autoincrement())
+  key       String
+  value     String
+  tableId   Int
+  table     CustomTable @relation(fields: [tableId], references: [id])
+}
