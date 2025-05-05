@@ -1,57 +1,77 @@
+// src/components/NewProjectModal.tsx
 'use client'
-import { useState, FormEvent } from 'react'
-import useSWR from 'swr'
 
-export default function NewProjectModal({ onClose }: { onClose: () => void }) {
+import { useState, FormEvent } from 'react'
+
+interface NewProjectModalProps {
+  onClose: () => void
+  onCreated: () => void
+}
+
+export default function NewProjectModal({ onClose, onCreated }: NewProjectModalProps) {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [image, setImage] = useState<File | null>(null)
-  const { mutate } = useSWR('/api/projects', url => fetch(url).then(r => r.json()))
+  const [imageFile, setImageFile] = useState<File | null>(null)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    const body = new FormData()
-    body.append('name', name)
-    body.append('description', description)
-    if (image) body.append('image', image)
+    const formData = new FormData()
+    formData.append('name', name)
+    formData.append('description', description)
+    if (imageFile) formData.append('image', imageFile)
 
-    await fetch('/api/projects', {
+    const res = await fetch('/api/projects', {
       method: 'POST',
-      body,
+      body: formData,
     })
-    setName(''); setDescription(''); setImage(null)
-    mutate()
-    onClose()
+    if (res.ok) {
+      onCreated()
+      onClose()
+    } else {
+      console.error('Error creating project:', await res.text())
+    }
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
       <form
         onSubmit={handleSubmit}
-        className="bg-white dark:bg-gray-800 p-6 rounded shadow-lg w-full max-w-md space-y-4"
+        className="bg-white dark:bg-gray-800 p-6 rounded shadow w-96 space-y-4"
       >
         <h2 className="text-xl font-semibold">New Project</h2>
         <input
           required
-          placeholder="Name"
+          placeholder="Project Name"
           value={name}
           onChange={e => setName(e.target.value)}
-          className="w-full px-3 py-2 border rounded"
+          className="w-full p-2 border rounded"
         />
         <textarea
           placeholder="Description"
           value={description}
           onChange={e => setDescription(e.target.value)}
-          className="w-full px-3 py-2 border rounded"
+          className="w-full p-2 border rounded h-24"
         />
         <input
           type="file"
           accept="image/*"
-          onChange={e => setImage(e.target.files?.[0] || null)}
+          onChange={e => setImageFile(e.target.files?.[0] ?? null)}
+          className="w-full"
         />
         <div className="flex justify-end space-x-2">
-          <button type="button" onClick={onClose} className="px-4 py-2">Cancel</button>
-          <button type="submit" className="px-4 py-2 border">Create</button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-3 py-1 border rounded"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-3 py-1 border rounded bg-gray-100"
+          >
+            Create
+          </button>
         </div>
       </form>
     </div>

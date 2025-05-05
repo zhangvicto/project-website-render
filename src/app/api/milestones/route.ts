@@ -1,36 +1,32 @@
-// src/app/api/milestones/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 // GET /api/milestones?projectId=…
 export async function GET(request: NextRequest) {
-  const pid = request.nextUrl.searchParams.get('projectId')
-  const where = pid ? { projectId: Number(pid) } : {}
-  const list = await prisma.milestone.findMany({
-    where,
-    orderBy: { id: 'asc' },
-  })
+  const projectId = request.nextUrl.searchParams.get('projectId')
+  const where = projectId ? { projectId: Number(projectId) } : {}
+  const list = await prisma.milestone.findMany({ where, orderBy: { id: 'asc' } })
   return NextResponse.json(list)
 }
 
 // POST /api/milestones
 export async function POST(request: NextRequest) {
-  const { name, dueDate, projectId } = await request.json()
+  const { name, date, projectId } = await request.json()
 
-  if (!name || projectId === undefined) {
+  if (!name || !date || !projectId) {
     return NextResponse.json(
-      { error: 'Missing name or projectId' },
+      { error: 'Missing name, date, or projectId' },
       { status: 400 }
     )
   }
 
-  const m = await prisma.milestone.create({
+  const created = await prisma.milestone.create({
     data: {
       name,
-      dueDate: dueDate ? new Date(dueDate) : undefined,
-      projectId: Number(projectId),    // ← convert here
+      date: new Date(date),              // always passing a Date, never undefined
+      projectId: Number(projectId),      // ensure correct type
     },
   })
 
-  return NextResponse.json(m, { status: 201 })
+  return NextResponse.json(created, { status: 201 })
 }

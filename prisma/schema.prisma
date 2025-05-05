@@ -8,48 +8,43 @@ generator client {
 }
 
 model Project {
-  id          Int               @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   name        String
   description String?
-  imageData   String?           // base64 PNG/JPEG
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  imageData   String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   tasks       Task[]
   milestones  Milestone[]
-  tables      CustomTable[]
+  documents   Document[]
 }
 
 model Task {
   id          Int       @id @default(autoincrement())
   title       String
   description String?
-  startDate   DateTime @default(now())
-  endDate     DateTime @default(now())
+  startDate   DateTime
+  endDate     DateTime
   completed   Boolean   @default(false)
   projectId   Int
   project     Project   @relation(fields: [projectId], references: [id])
 }
 
 model Milestone {
-  id          Int       @id @default(autoincrement())
-  name        String
-  date        DateTime @default(now())
-  projectId   Int
-  project     Project   @relation(fields: [projectId], references: [id])
-}
-
-model CustomTable {
-  id        Int               @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
+  date      DateTime
   projectId Int
-  project   Project           @relation(fields: [projectId], references: [id])
-  rows      CustomTableRow[]
+  project   Project   @relation(fields: [projectId], references: [id])
 }
 
-model CustomTableRow {
-  id        Int         @id @default(autoincrement())
-  key       String
-  value     String
-  tableId   Int
-  table     CustomTable @relation(fields: [tableId], references: [id])
+/// Documents stored as Markdown
+model Document {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String   @default("")
+  projectId Int
+  project   Project  @relation(fields: [projectId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

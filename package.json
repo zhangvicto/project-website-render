@@ -10,10 +10,17 @@
   },
   "dependencies": {
     "@prisma/client": "^6.7.0",
+    "@rsagiev/gantt-task-react-19": "^0.3.9",
+    "@syncfusion/ej2-base": "^29.1.36",
+    "@syncfusion/ej2-data": "^29.1.33",
+    "@syncfusion/ej2-react-base": "^29.1.33",
+    "@syncfusion/ej2-react-gantt": "^29.1.40",
     "next": "15.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-google-charts": "^5.2.1",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "swr": "^2.3.3"
   },
   "devDependencies": {
